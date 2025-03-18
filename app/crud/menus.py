@@ -8,6 +8,7 @@ from app.models.menus import Menu
 from app.schemas.menus import MenuResponse, MenuCreateRequest
 from app.models.foods import Food
 from app.schemas.foods import FoodResponse
+from app.models.food_menu import food_menu_table
 
 
 def get_menu_by_id(db: Session, menu_id: int) -> Optional[MenuResponse]:
@@ -52,18 +53,23 @@ def create_menu(db: Session, menu: MenuCreateRequest) -> MenuResponse:
     Returns:
         MenuResponse: 생성된 메뉴 정보.
     """
-    new_menu = Menu(
-        date=datetime.now()
-    )
+    new_menu = Menu(date=datetime.now())
     db.add(new_menu)
     db.flush()
     db.refresh(new_menu)
 
     created_foods = []
     for food in menu.foods:
-        new_food = Food(name=food, menu_id=new_menu.id)
-        db.add(new_food)
-        db.flush()
+        existing_food = db.query(Food).filter(Food.name == food).first()
+
+        if existing_food:
+            new_food = existing_food
+        else:
+            new_food = Food(name=food)
+            db.add(new_food)
+            db.flush()
+
+        db.execute(food_menu_table.insert().values(food_id=new_food.id, menu_id=new_menu.id))
         created_foods.append(FoodResponse(id=new_food.id, name=new_food.name))
 
     return MenuResponse(

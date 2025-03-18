@@ -1,24 +1,26 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from app.models.food_menu import food_menu_table 
 
 class Food(Base):
     """
-    음식(Food) 모델.
+    Food (음식) 테이블 모델.
 
-    특정 메뉴(`menu_id`)에 속하며, 여러 개의 점수(`scores`)와 연결됨.
+    - `id`: 음식 고유 ID (PK)
+    - `name`: 음식 이름
+    - `menus`: 다대다(M:N) 관계에서 메뉴(Menu)와 연결된 리스트
+    - `scores`: 음식 점수 (1:N 관계)
     """
     __tablename__ = "foods"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
-    menu_id = Column(Integer, ForeignKey("menus.id"), nullable=False)
 
-    menu = relationship("Menu", back_populates="foods", lazy="selectin")
-
-    scores = relationship("Score", back_populates="food", lazy="selectin")  
+    menus = relationship("Menu", secondary=food_menu_table, back_populates="foods", lazy="selectin")
+    scores = relationship("Score", back_populates="food", lazy="selectin")
 
     def __repr__(self):
         """객체 정보를 문자열로 반환 (디버깅용)."""
-        return f"<Food(id={self.id}, name={self.name}, menu_id={self.menu_id})>"
+        return f"<Food(id={self.id}, name={self.name})>"

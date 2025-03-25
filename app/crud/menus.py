@@ -1,5 +1,5 @@
 from typing import List, Optional
-from datetime import datetime, date
+from datetime import date
 
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Session, joinedload
@@ -53,7 +53,7 @@ def create_menu(db: Session, menu: MenuCreateRequest) -> MenuResponse:
     Returns:
         MenuResponse: 생성된 메뉴 정보.
     """
-    new_menu = Menu(date=datetime.now())
+    new_menu = Menu(date=menu.date)
     db.add(new_menu)
     db.flush()
     db.refresh(new_menu)

@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, users, menus, foods
+from app.routers import auth, users, menus, foods, logs
 from app.database import init_db
 from app.config import get_settings
+from app.middlewares.logging import LoggingMiddleware
 
 settings = get_settings()
 init_db()
@@ -23,11 +24,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.add_middleware(LoggingMiddleware)
 app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(users.router, prefix="/api/v1", tags=["users"])
 app.include_router(menus.router, prefix="/api/v1", tags=["menus"])
 app.include_router(foods.router, prefix="/api/v1", tags=["foods"])
+app.include_router(logs.router, prefix="/api/v1", tags=["logs"])
 
 
 @app.get("/api/v1/health", tags=["system"])

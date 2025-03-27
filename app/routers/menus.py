@@ -26,17 +26,15 @@ add_pagination(router)
 async def get_menu_by_date(
     date: date = Path(..., description="조회할 날짜 (YYYY-MM-DD 형식)"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin)
 ):
     """
-    특정 날짜의 메뉴 목록을 조회하는 API (관리자 전용).
+    특정 날짜의 메뉴 목록을 조회하는 API.
 
     - `admin` 권한이 필요합니다.
 
     Args:
         date (date): 조회할 날짜 (`YYYY-MM-DD` 형식).
         db (Session): 데이터베이스 세션.
-        current_user (User): 관리자 인증된 사용자.
 
     Returns:
         List[MenuResponse]: 해당 날짜의 메뉴 목록.

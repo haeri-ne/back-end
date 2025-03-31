@@ -1,16 +1,12 @@
-import os
-from dotenv import load_dotenv
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import sessionmaker
 
-load_dotenv()
+from app.config import get_settings
 
-SQLITE_URL = os.getenv("SQLITE_URL")
+settings = get_settings()
 
-
-engine = create_engine(SQLITE_URL, echo=True)
+engine = create_engine(settings.SQLITE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base: DeclarativeMeta = declarative_base()

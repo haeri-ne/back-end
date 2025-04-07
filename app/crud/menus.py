@@ -29,7 +29,7 @@ def get_menu_by_id(db: Session, menu_id: int) -> Optional[MenuResponse]:
     
     return None
 
-def get_menu_by_date(db: Session, date: date) -> List[Menu]:
+def get_menu_by_date(db: Session, date: date) -> List[MenuResponse]:
     """
     특정 날짜의 메뉴 목록을 조회하는 함수.
 
@@ -38,9 +38,18 @@ def get_menu_by_date(db: Session, date: date) -> List[Menu]:
         date (date): 조회할 날짜.
 
     Returns:
-        List[Menu]: 해당 날짜의 메뉴 목록.
+        List[MenuResponse]: 해당 날짜의 메뉴 정보.
     """
-    return db.query(Menu).options(joinedload(Menu.foods)).filter(func.DATE(Menu.date) == date).all()
+    menu_list = db.query(Menu).options(joinedload(Menu.foods)).filter(func.DATE(Menu.date) == date).all()
+
+    return [
+        MenuResponse(
+            id=menu.id,
+            foods=[FoodResponse(id=food.id, name=food.name) for food in menu.foods],
+            date=menu.date
+        )
+        for menu in menu_list
+    ]
 
 def create_menu(db: Session, menu: MenuCreateRequest) -> MenuResponse:
     """
@@ -73,6 +82,7 @@ def create_menu(db: Session, menu: MenuCreateRequest) -> MenuResponse:
         created_foods.append(FoodResponse(id=new_food.id, name=new_food.name))
 
     return MenuResponse(
+        id=new_menu.id,
         foods=created_foods,
         date=new_menu.date
     )

@@ -30,8 +30,6 @@ async def get_menu_by_date(
     """
     특정 날짜의 메뉴 목록을 조회하는 API.
 
-    - `admin` 권한이 필요합니다.
-
     Args:
         date (date): 조회할 날짜 (`YYYY-MM-DD` 형식).
         db (Session): 데이터베이스 세션.
@@ -45,19 +43,16 @@ async def get_menu_by_date(
     menu_list = menus.get_menu_by_date(db, date)
 
     if not menu_list:
-        raise HTTPException(status_code=404, detail="No menus found for the given date.")
-
-    return [
-        MenuResponse(
-            foods=[FoodResponse(id=food.id, name=food.name) for food in menu.foods],
-            date=menu.date
+        raise HTTPException(
+            status_code=404, 
+            detail="No menus found for the given date."
         )
-        for menu in menu_list
-    ]
+
+    return menu_list
 
 @router.post("/", response_model=MenuResponse, status_code=status.HTTP_201_CREATED)
 async def create_menu(
-    menu: MenuCreateRequest,
+    menu: List[MenuCreateRequest],
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin)
 ):

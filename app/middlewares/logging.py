@@ -15,6 +15,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     - 응답 바디가 JSON 형식일 경우 디코딩하여 응답 내용을 함께 저장합니다.
     - 비정상 응답(예: status >= 400)도 is_success 플래그로 기록됩니다.
     """
+    EXCLUDE_PATH = ["/health", "/openapi.json", "/api/v1/health", "/favicon.ico"]
 
     async def dispatch(self, request: Request, call_next):
         user_id = request.headers.get("user-id", "anonymous")
@@ -36,7 +37,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             )
 
             decoded_body = response_body.decode("utf-8")
-            if decoded_body.strip():
+            if decoded_body.strip() and request.url.path not in self.UNINCLUDE_PATH:
                 try:
                     response_data = json.loads(decoded_body)
                     record_log(

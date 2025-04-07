@@ -10,6 +10,7 @@ class MenuCreateRequest(BaseModel):
 
 class MenuResponse(BaseModel):
     """메뉴 응답 모델"""
+    id: int
     foods: List[FoodResponse]
     date: datetime
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from fastapi import HTTPException, status
 
@@ -39,33 +40,38 @@ def create_food(db: Session, food: FoodCreateRequest) -> FoodResponse:
     return FoodResponse.model_validate(new_food)
 
 
-def score_food(db: Session, score: ScoreCreateRequest) -> ScoreResponse:
+def score_food(db: Session, score_list: List[ScoreCreateRequest]) -> List[ScoreResponse]:
     """
     특정 음식에 대한 점수를 저장하는 함수.
 
     Args:
         db (Session): 데이터베이스 세션.
-        score (ScoreCreateRequest): 음식 ID 및 점수 정보.
+        score_list (List[ScoreCreateRequest]): 음식 ID 및 점수 정보.
 
     Returns:
-        ScoreResponse: 저장된 점수 정보.
+        List[ScoreResponse]: 저장된 점수 정보.
 
     Raises:
         HTTPException: 음식 ID(`food_id`)가 존재하지 않을 경우 예외 발생.
     """
-    food = db.query(Food).filter(Food.id == score.food_id).first()
-    if not food:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid food_id. Food does not exist."
+    new_scores = []
+    for score in score_list:
+        food = db.query(Food).filter(Food.id == score.food_id).first()
+        
+        if not food:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid food_id. Food does not exist."
+            )
+
+        new_score = Score(
+            food_id=score.food_id,
+            score=score.score,
+            created_at=datetime.now()
         )
 
-    new_score = Score(
-        food_id=score.food_id,
-        score=score.score,
-        created_at=datetime.now()
-    )
-    db.add(new_score)
-    db.flush()
+        new_scores.append(new_score)
+        db.add(new_score)
+        db.flush()
 
-    return ScoreResponse.model_validate(new_score)
+    return [ScoreResponse.model_validate(new_score) for new_score in new_scores]

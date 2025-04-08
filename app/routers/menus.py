@@ -52,7 +52,7 @@ async def get_menu_by_date(
 
 @router.post("/", response_model=MenuResponse, status_code=status.HTTP_201_CREATED)
 async def create_menu(
-    menu: List[MenuCreateRequest],
+    menu: MenuCreateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin)
 ):

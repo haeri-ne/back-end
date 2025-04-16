@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+
 from sqlalchemy.orm import Session
 
 from app.models.menus import Menu
@@ -21,7 +22,6 @@ def create_comment(db: Session, user_id: str, comment: CommentRequest) -> Commen
     Raises:
         HTTPException: 주어진 menu_id가 존재하지 않을 경우 400 예외 발생.
     """
-    # 댓글이 달릴 메뉴가 존재하는지 검증
     if not db.query(Menu).filter(Menu.id == comment.menu_id).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

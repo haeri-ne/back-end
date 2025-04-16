@@ -18,10 +18,11 @@ class Menu(Base):
     __tablename__ = "menus"
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(Date, nullable=False, index=True)
+    date = Column(Date, nullable=False)
 
     foods = relationship("Food", secondary=food_menu_table, back_populates="menus", lazy="selectin")
     comments = relationship("Comment", back_populates="menu", lazy="selectin")
+    votes = relationship("Vote", back_populates="menu", lazy="selectin")
 
     def __repr__(self):
         """

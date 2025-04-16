@@ -1,15 +1,17 @@
 from datetime import datetime
 from typing import List
 
-import numpy as np
-
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.scores import Score
 from app.schemas.scores import ScoreCreateRequest, ScoreResponse
 from app.models.foods import Food
-from app.schemas.foods import FoodCreateRequest, FoodPatchRequest, FoodResponse, FoodStatisticResponse
+from app.schemas.foods import (
+    FoodCreateRequest, 
+    FoodPatchRequest, 
+    FoodResponse
+)
 
 
 def create_food(db: Session, food: FoodCreateRequest) -> FoodResponse:
@@ -111,47 +113,3 @@ def score_food(db: Session, user_id: str, score_list: List[ScoreCreateRequest]) 
         db.flush()
 
     return [ScoreResponse.model_validate(new_score) for new_score in new_scores]
-
-
-def get_food_statistics(db: Session, food_id: int) -> FoodStatisticResponse:
-    """
-    특정 음식에 대한 평가 점수 통계를 계산하는 함수.
-
-    Args:
-        db (Session): SQLAlchemy 세션 객체.
-        food_id (int): 통계를 계산할 음식 ID.
-
-    Returns:
-        FoodStatisticResponse: 평균, 중앙값, 분위수, 최소/최대 점수 등을 포함한 통계 결과.
-
-    Raises:
-        HTTPException: 음식이 존재하지 않거나 점수가 없을 경우 404 예외 발생.
-    """
-    food = db.query(Food).filter(Food.id == food_id).first()
-    if not food:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid food_id. Food does not exist."
-        )
-
-    scores = db.query(Score.score).filter(Score.food_id == food.id).all()
-    scores_list = [s[0] for s in scores]
-
-    if not scores_list:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No scores found for this food."
-        )
-
-    arr = np.array(scores_list)
-
-    return FoodStatisticResponse.model_validate({
-        "food_id": food_id,
-        "count": len(arr),
-        "mean": float(np.mean(arr)),
-        "median": float(np.median(arr)),
-        "quantile_25": float(np.percentile(arr, 25)),
-        "quantile_75": float(np.percentile(arr, 75)),
-        "min": float(np.min(arr)),
-        "max": float(np.max(arr))
-    })

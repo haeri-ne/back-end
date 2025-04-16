@@ -33,27 +33,3 @@ class FoodResponse(BaseModel):
     name: str
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class FoodStatisticResponse(BaseModel):
-    """
-    음식 통계 응답 모델.
-
-    Attributes:
-        food_id (int): 음식 ID.
-        count (int): 총 평가 개수.
-        mean (float): 평균 점수.
-        median (float): 중앙값.
-        quantile_25 (float): 제1사분위수 (25%).
-        quantile_75 (float): 제3사분위수 (75%).
-        min (float): 최소 점수.
-        max (float): 최대 점수.
-    """
-    food_id: int
-    count: int
-    mean: float
-    median: float
-    quantile_25: float
-    quantile_75: float
-    min: float
-    max: float

@@ -15,8 +15,7 @@ from app.models.users import User
 from app.schemas.menus import (
     MenuResponse, 
     MenuCreateRequest, 
-    MenuCounterResponse, 
-    MenuStatisticResponse
+    MenuCounterResponse
 )
 from app.schemas.comments import CommentRequest, CommentResponse
 
@@ -136,25 +135,3 @@ async def get_menu_counters(menu_id: int, db: Session = Depends(get_db)):
     """
     counters = menus.get_menu_counters(db, menu_id)
     return counters
-
-
-@router.get("/{menu_id}/statistics", response_model=MenuStatisticResponse, status_code=status.HTTP_200_OK)
-async def get_menu_statistics(
-    menu_id: int,
-    db: Session = Depends(get_db)
-):
-    """
-    특정 메뉴에 포함된 음식들에 대한 점수 통계를 조회하는 API.
-
-    Args:
-        menu_id (int): 조회할 메뉴의 ID.
-        db (Session): SQLAlchemy 세션 객체.
-
-    Returns:
-        MenuStatisticResponse: 메뉴에 포함된 음식들의 점수 통계.
-
-    Raises:
-        HTTPException: 메뉴가 존재하지 않을 경우 400 예외 발생.
-    """
-    statistics = menus.get_menu_statistics(db, menu_id)
-    return statistics

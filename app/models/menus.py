@@ -30,4 +30,4 @@ class Menu(Base):
         Returns:
             str: 메뉴의 ID와 날짜를 포함한 문자열 표현.
         """
-        return f"<Menu(id={self.id}, date={self.date})>"
+        return f"<Menu(id={self.id}, date={self.date}, foods={self.foods}, comments={self.comments})>"

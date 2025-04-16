@@ -8,7 +8,7 @@ from app.dependencies.auth import get_current_admin
 from app.dependencies.user import get_user_id
 from app.crud import foods
 from app.models.users import User
-from app.schemas.foods import FoodPatchRequest, FoodResponse, FoodStatisticResponse
+from app.schemas.foods import FoodPatchRequest, FoodResponse
 from app.schemas.scores import ScoreCreateRequest, ScoreResponse
 
 
@@ -69,25 +69,3 @@ async def score_food(
     """
     new_score = foods.score_food(db, user_id, score_list)
     return new_score
-
-
-@router.get("/{food_id}/statistic", response_model=FoodStatisticResponse, status_code=status.HTTP_200_OK)
-async def get_food_statistics(
-    food_id: int,
-    db: Session = Depends(get_db)
-):
-    """
-    특정 음식의 점수 통계를 조회하는 API.
-
-    Args:
-        food_id (int): 조회할 음식의 ID.
-        db (Session): SQLAlchemy 데이터베이스 세션.
-
-    Returns:
-        FoodStatisticResponse: 평균, 중앙값, 분위수 등 점수 통계 정보.
-
-    Raises:
-        HTTPException: 음식이 존재하지 않거나 점수가 없을 경우.
-    """
-    statistics = foods.get_food_statistics(db, food_id)
-    return statistics

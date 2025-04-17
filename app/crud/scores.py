@@ -52,7 +52,7 @@ def create_food_scores(db: Session, user_id: str, score_list: List[ScoreCreateRe
     return [ScoreResponse.model_validate(new_score) for new_score in new_scores]
 
 
-def get_food_scores_recent_by_menu(db: Session, user_id: str, menu_id: int) -> List[ScoreResponse]:
+def get_recent_food_scores_by_menu(db: Session, user_id: str, menu_id: int) -> List[ScoreResponse]:
     """
     특정 메뉴에 포함된 음식들에 대해 사용자가 가장 최근에 등록한 점수를 조회합니다.
 

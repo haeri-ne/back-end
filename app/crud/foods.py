@@ -1,11 +1,6 @@
-from datetime import datetime
-from typing import List
-
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.scores import Score
-from app.schemas.scores import ScoreCreateRequest, ScoreResponse
 from app.models.foods import Food
 from app.schemas.foods import (
     FoodCreateRequest, 
@@ -73,43 +68,3 @@ def update_food(db: Session, food_id: int, new_food: FoodPatchRequest) -> FoodRe
     db.refresh(food)
 
     return FoodResponse.model_validate(food)
-
-
-def score_food(db: Session, user_id: str, score_list: List[ScoreCreateRequest]) -> List[ScoreResponse]:
-    """
-    음식에 대한 평가 점수를 저장하는 함수.
-
-    Args:
-        db (Session): SQLAlchemy 세션 객체.
-        user_id (str): 점수를 등록한 사용자 ID.
-        score_list (List[ScoreCreateRequest]): 음식 ID 및 점수 목록.
-
-    Returns:
-        List[ScoreResponse]: 저장된 점수 정보 리스트.
-
-    Raises:
-        HTTPException: 음식 ID가 존재하지 않을 경우 400 예외 발생.
-    """
-    new_scores = []
-
-    for score in score_list:
-        food = db.query(Food).filter(Food.id == score.food_id).first()
-
-        if not food:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid food_id. Food does not exist."
-            )
-
-        new_score = Score(
-            user_id=user_id,
-            food_id=score.food_id,
-            score=score.score,
-            created_at=datetime.now()
-        )
-
-        new_scores.append(new_score)
-        db.add(new_score)
-        db.flush()
-
-    return [ScoreResponse.model_validate(new_score) for new_score in new_scores]

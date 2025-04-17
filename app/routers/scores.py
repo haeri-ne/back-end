@@ -43,7 +43,7 @@ async def create_food_scores(
 
 
 @router.get("/{menu_id}", response_model=List[ScoreResponse], status_code=status.HTTP_200_OK)
-async def get_food_scores_recent_by_menu(
+async def get_recent_food_scores_by_menu(
     menu_id: int,
     db: Session = Depends(get_db),
     user_id: str = Depends(get_user_id)
@@ -67,5 +67,5 @@ async def get_food_scores_recent_by_menu(
             - 존재하지 않는 메뉴 ID일 경우 400 에러.
             - 사용자가 해당 메뉴에 속한 음식에 대해 점수를 남기지 않았을 경우 400 에러.
     """
-    score = scores.get_food_scores_recent_by_menu(db, user_id, menu_id)
+    score = scores.get_recent_food_scores_by_menu(db, user_id, menu_id)
     return score

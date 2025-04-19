@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     
     model_config = SettingsConfigDict(env_file=".env")
+    
+    @property
+    def cors_origin_list(self):
+        return self.CORS_ORIGINS.split(",")
+
 
 @lru_cache
 def get_settings():

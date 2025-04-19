@@ -18,10 +18,11 @@ class Menu(Base):
     __tablename__ = "menus"
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(Date, nullable=False, index=True)
+    date = Column(Date, nullable=False)
 
     foods = relationship("Food", secondary=food_menu_table, back_populates="menus", lazy="selectin")
     comments = relationship("Comment", back_populates="menu", lazy="selectin")
+    votes = relationship("Vote", back_populates="menu", lazy="selectin")
 
     def __repr__(self):
         """
@@ -30,4 +31,4 @@ class Menu(Base):
         Returns:
             str: 메뉴의 ID와 날짜를 포함한 문자열 표현.
         """
-        return f"<Menu(id={self.id}, date={self.date})>"
+        return f"<Menu(id={self.id}, date={self.date}, foods={self.foods}, comments={self.comments})>"

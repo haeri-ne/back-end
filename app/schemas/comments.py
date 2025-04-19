@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
-class CommentRequest(BaseModel):
+class CommentCreateRequest(BaseModel):
     """
     댓글 작성 요청 모델.
 

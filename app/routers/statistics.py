@@ -90,6 +90,7 @@ async def get_food_statistics(
 @router.get("/mean/foods/{food_id}", response_model=FoodMeanStatisticResponse, status_code=status.HTTP_200_OK)
 async def get_food_mean(
     food_id: int,
+    date: Optional[datetime] = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -97,6 +98,7 @@ async def get_food_mean(
 
     Args:
         food_id (int): 평균 점수를 조회할 음식의 ID.
+        date (Optional[datetime], optional): 특정 날짜 기준 평균 조회. 기본값은 None.
         db (Session): 데이터베이스 세션 (의존성 주입).
 
     Returns:
@@ -105,5 +107,5 @@ async def get_food_mean(
     Raises:
         HTTPException: 음식이 존재하지 않거나 평가 데이터가 없는 경우.
     """
-    statistic = statistics.get_food_mean(db, food_id)
+    statistic = statistics.get_food_mean(db, food_id, date)
     return statistic

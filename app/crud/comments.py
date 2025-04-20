@@ -5,7 +5,7 @@ from sqlalchemy.sql import and_
 
 from app.models.menus import Menu
 from app.models.comments import Comment
-from app.schemas.comments import CommentCreateRequest, CommentResponse
+from app.schemas.comments import CommentCreateRequest, CommentCountResponse, CommentResponse
 
 
 def create_comment(db: Session, user_id: str, comment: CommentCreateRequest) -> CommentResponse:
@@ -42,7 +42,7 @@ def create_comment(db: Session, user_id: str, comment: CommentCreateRequest) -> 
     return CommentResponse.model_validate(new_comment)
 
 
-def get_recent_comment_by_menu(db: Session, user_id: str, menu_id: int) -> CommentResponse:
+def get_comment_by_menu(db: Session, user_id: str, menu_id: int) -> CommentResponse:
     """
     특정 메뉴에 대해 사용자가 가장 최근에 작성한 댓글을 조회합니다.
 
@@ -72,3 +72,38 @@ def get_recent_comment_by_menu(db: Session, user_id: str, menu_id: int) -> Comme
         )
 
     return CommentResponse.model_validate(comment)
+
+
+def get_comment_count(db: Session, menu1_id: int, menu2_id: int) -> CommentCountResponse:
+    """
+    두 개의 메뉴에 대한 댓글 수를 계산합니다.
+
+    Args:
+        db (Session): SQLAlchemy 세션 객체.
+        menu1_id (int): 첫 번째 메뉴 ID.
+        menu2_id (int): 두 번째 메뉴 ID.
+        
+    Returns:
+        CommentCountResponse: 각 메뉴의 댓글 수.
+
+    Raises:
+        HTTPException: 존재하지 않는 메뉴가 포함된 경우.
+    """
+    if not (
+        db.query(Menu).filter(Menu.id == menu1_id).first() and
+        db.query(Menu).filter(Menu.id == menu2_id).first()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Menu does not exist."
+        )
+
+    menu1_count = db.query(Comment).filter(Comment.menu_id == menu1_id).count()
+    menu2_count = db.query(Comment).filter(Comment.menu_id == menu2_id).count()
+    
+    return CommentCountResponse.model_validate({
+        "menu1_id": menu1_id,
+        "menu1_count": menu1_count,
+        "menu2_id": menu2_id,
+        "menu2_count": menu2_count,
+    })

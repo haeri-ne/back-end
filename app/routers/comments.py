@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from app.database import get_db
 from app.dependencies.user import get_user_id
 from app.crud import comments
-from app.schemas.comments import CommentCreateRequest, CommentResponse
+from app.schemas.comments import CommentCreateRequest, CommentCountResponse, CommentResponse
 
 
 router = APIRouter(
@@ -47,7 +47,7 @@ async def create_comment(
 
 
 @router.get("/{menu_id}", response_model=CommentResponse, status_code=status.HTTP_200_OK)
-async def get_recent_comment_by_menu(
+async def get_comment_by_menu(
     menu_id: int,
     db: Session = Depends(get_db),
     user_id: str = Depends(get_user_id)
@@ -66,5 +66,31 @@ async def get_recent_comment_by_menu(
     Raises:
         HTTPException: 해당 메뉴에 대한 댓글이 존재하지 않을 경우.
     """
-    comment = comments.get_recent_comment_by_menu(db, user_id, menu_id)
+    comment = comments.get_comment_by_menu(db, user_id, menu_id)
     return comment
+
+
+@router.get("/count", response_model=CommentCountResponse, status_code=status.HTTP_200_OK)
+async def get_comment_count(
+    menu1_id: int,
+    menu2_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    두 개의 메뉴에 대한 댓글 수를 조회하는 API.
+
+    쿼리 파라미터로 전달된 menu1_id, menu2_id에 대한 댓글 수를 각각 계산하여 반환합니다.
+
+    Args:
+        menu1_id (int): 첫 번째 메뉴 ID.
+        menu2_id (int): 두 번째 메뉴 ID.
+        db (Session): SQLAlchemy 세션 객체.
+
+    Returns:
+        CommentCountResponse: 두 메뉴의 ID와 각각의 투표 수.
+
+    Raises:
+        HTTPException: 하나라도 존재하지 않는 메뉴 ID가 있을 경우 400 예외 발생.
+    """
+    comment_count = comments.get_comment_count(db, menu1_id, menu2_id)
+    return comment_count

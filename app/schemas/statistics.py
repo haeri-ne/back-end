@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
@@ -82,7 +82,7 @@ class MenuMeanStatisticResponse(BaseModel):
     """
     menu_id: int
     foods_statistics: List[FoodMeanStatisticResponse]
-    date: datetime
+    date: Optional[datetime]
 
     model_config = ConfigDict(from_attributes=True)
 

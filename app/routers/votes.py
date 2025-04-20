@@ -96,8 +96,7 @@ async def get_vote(
 @router.patch("/", response_model=VoteReponse, status_code=status.HTTP_200_OK)
 async def update_vote(
     vote: VotePatchRequest, 
-    db: Session = Depends(get_db),
-    user_id: str = Depends(get_user_id)
+    db: Session = Depends(get_db)
 ):
     """
     사용자가 본인의 투표를 수정합니다.
@@ -107,7 +106,6 @@ async def update_vote(
     Args:
         vote (VotePatchRequest): 수정할 투표 정보 (id, created_at, menu_id 포함).
         db (Session): 데이터베이스 세션.
-        user_id (str): 요청자의 식별자 (헤더에서 추출).
 
     Returns:
         VoteReponse: 수정된 투표 정보.
@@ -117,5 +115,5 @@ async def update_vote(
             - 존재하지 않는 vote_id일 경우 (400)
             - 본인의 투표가 아닐 경우 (403)
     """
-    updated_vote = votes.update_vote(db, user_id, vote)
+    updated_vote = votes.update_vote(db, vote)
     return updated_vote

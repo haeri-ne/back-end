@@ -84,22 +84,3 @@ async def create_menu(
         )
 
     return new_menu
-
-
-@router.get("/{menu_id}/counters", response_model=MenuCounterResponse, status_code=status.HTTP_200_OK)
-async def get_menu_counters(menu_id: int, db: Session = Depends(get_db)):
-    """
-    특정 메뉴의 점수 개수(vote_count)와 댓글 개수(comment_count)를 조회하는 API.
-
-    Args:
-        menu_id (int): 조회할 메뉴의 ID.
-        db (Session): SQLAlchemy 데이터베이스 세션.
-
-    Returns:
-        MenuCounterResponse: 해당 메뉴에 연결된 음식들의 점수 수와 댓글 수.
-    
-    Raises:
-        HTTPException: 메뉴에 연결된 음식이 하나도 없는 경우 400 예외 반환.
-    """
-    counters = menus.get_menu_counters(db, menu_id)
-    return counters

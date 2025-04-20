@@ -115,13 +115,12 @@ def get_vote_count(db: Session, menu1_id: int, menu2_id: int) -> VoteCountRespon
     })
 
 
-def update_vote(db: Session, user_id: str, new_vote: VotePatchRequest) -> VoteReponse:
+def update_vote(db: Session, new_vote: VotePatchRequest) -> VoteReponse:
     """
     본인의 투표 정보를 수정합니다.
 
     Args:
         db (Session): DB 세션
-        user_id (str): 사용자 ID
         new_vote (VotePatchRequest): 수정할 투표 정보
 
     Returns:
@@ -130,10 +129,8 @@ def update_vote(db: Session, user_id: str, new_vote: VotePatchRequest) -> VoteRe
     Raises:
         HTTPException: 
             - 투표가 존재하지 않으면 400 에러
-            - 다른 사용자의 투표를 수정하려 하면 403 에러
-            - 이미 해당 메뉴에 대해 다른 투표가 존재할 경우 400 에러
     """
-    vote = db.query(Vote).filter(and_(Vote.user_id == user_id, Vote.id == new_vote.id)).first()
+    vote = db.query(Vote).filter(Vote.id == new_vote.id).first()
     
     if not vote:
         raise HTTPException(
@@ -141,16 +138,11 @@ def update_vote(db: Session, user_id: str, new_vote: VotePatchRequest) -> VoteRe
             detail="Invalid vote_id. Vote does not exist."
         )
 
-    if db.query(Vote).filter(Vote.user_id == user_id, Vote.menu_id == new_vote.menu_id, Vote.id != new_vote.id).first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You have already voted for this menu."
-        )
+    if vote.menu_id != new_vote.menu_id:
+        vote.created_at = new_vote.created_at
+        vote.menu_id = new_vote.menu_id
 
-    vote.created_at = new_vote.created_at
-    vote.menu_id = new_vote.menu_id
+        db.commit()
+        db.refresh(vote)
 
-    db.commit()
-    db.refresh(vote)
-    
     return VoteReponse.model_validate(vote)

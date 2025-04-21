@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
-class CommentRequest(BaseModel):
+class CommentCreateRequest(BaseModel):
     """
     댓글 작성 요청 모델.
 
@@ -14,6 +14,22 @@ class CommentRequest(BaseModel):
     comment: str
     created_at: datetime
     menu_id: int
+
+
+class CommentCountResponse(BaseModel):
+    """
+    두 메뉴에 대한 댓글 수를 반환하는 응답 모델.
+
+    Attributes:
+        menu1_id (int): 첫 번째 메뉴 ID.
+        menu1_count (int): 첫 번째 메뉴의 댓글 수.
+        menu2_id (int): 두 번째 메뉴 ID.
+        menu2_count (int): 두 번째 메뉴의 댓글 수.
+    """
+    menu1_id: int
+    menu1_count: int
+    menu2_id: int
+    menu2_count: int
 
 
 class CommentResponse(BaseModel):

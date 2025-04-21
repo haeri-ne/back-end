@@ -23,4 +23,4 @@ class Food(Base):
 
     def __repr__(self):
         """객체 정보를 문자열로 반환 (디버깅용)."""
-        return f"<Food(id={self.id}, name={self.name})>"
+        return f"<Food(id={self.id}, name={self.name}, scores={self.scores})>"

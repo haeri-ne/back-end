@@ -9,8 +9,7 @@ from app.models.menus import Menu
 from app.schemas.menus import (
     MenuResponse, 
     MenuCreateRequest, 
-    MenuCounterResponse, 
-    MenuStatisticResponse
+    MenuCounterResponse
 )
 from app.models.foods import Food
 from app.models.scores import Score
@@ -18,7 +17,6 @@ from app.models.comments import Comment
 from app.models.food_menu import food_menu_table
 from app.schemas.foods import FoodResponse
 from app.schemas.menus import MenuCounterResponse
-from app.crud.foods import get_food_statistics
 
 
 def get_menu_by_id(db: Session, menu_id: int) -> Optional[MenuResponse]:
@@ -98,64 +96,3 @@ def create_menu(db: Session, menu: MenuCreateRequest) -> MenuResponse:
         foods=created_foods,
         date=new_menu.date
     )
-
-
-def get_menu_counters(db: Session, menu_id: int) -> MenuCounterResponse:
-    """
-    특정 메뉴의 총 점수 개수(vote_count)와 댓글 개수(comment_count)를 반환합니다.
-
-    Args:
-        db (Session): SQLAlchemy 세션 객체.
-        menu_id (int): 조회할 메뉴 ID.
-
-    Returns:
-        MenuCounterResponse: 메뉴 ID와 함께 점수/댓글 개수를 반환.
-    """
-    food_ids = db.query(Food.id).join(Food.menus).filter(Menu.id == menu_id).all()
-    if not food_ids:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid food_id. Food does not exist."
-        )
-    food_ids = [f[0] for f in food_ids]
-
-    vote_count = (db.query(func.count(Score.id)).filter(Score.food_id.in_(food_ids)).scalar()) if food_ids else 0
-    comment_count = db.query(func.count(Comment.id)).filter(Comment.menu_id == menu_id).scalar()
-
-    return MenuCounterResponse.model_validate({
-        "menu_id": menu_id,
-        "vote_count": vote_count,
-        "comment_count": comment_count
-    })
-
-
-def get_menu_statistics(db: Session, menu_id: int) -> MenuStatisticResponse:
-    """
-    특정 메뉴에 포함된 모든 음식들의 통계를 집계하는 함수.
-
-    Args:
-        db (Session): SQLAlchemy 세션 객체.
-        menu_id (int): 조회할 메뉴 ID.
-
-    Returns:
-        MenuStatisticResponse: 각 음식별 통계와 총 평가 수를 포함한 통계 응답.
-    """
-    menu = db.query(Menu).filter(Menu.id == menu_id).first()
-    if not menu:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid menu_id. Menu does not exist."
-        )
-
-    total_count = 0
-    foods_statistics = []
-
-    for food in menu.foods:
-        statistic = get_food_statistics(db, food.id)
-        foods_statistics.append(statistic)
-        total_count += statistic.count
-
-    return MenuStatisticResponse.model_validate({
-        "foods_statistics": foods_statistics,
-        "total_count": total_count
-    })

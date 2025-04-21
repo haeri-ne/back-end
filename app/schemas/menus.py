@@ -2,7 +2,7 @@ from typing import List
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.foods import FoodResponse, FoodStatisticResponse
+from app.schemas.foods import FoodResponse
 
 
 class MenuCreateRequest(BaseModel):
@@ -45,19 +45,5 @@ class MenuCounterResponse(BaseModel):
     menu_id: int
     vote_count: int
     comment_count: int
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class MenuStatisticResponse(BaseModel):
-    """
-    메뉴 통계 응답 모델.
-
-    Attributes:
-        foods_statistics (List[FoodStatisticResponse]): 각 음식에 대한 통계 정보.
-        total_count (int): 모든 음식의 총 평가 수.
-    """
-    foods_statistics: List[FoodStatisticResponse]
-    total_count: int
 
     model_config = ConfigDict(from_attributes=True)

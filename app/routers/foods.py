@@ -1,15 +1,11 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies.auth import get_current_admin
-from app.dependencies.user import get_user_id
 from app.crud import foods
 from app.models.users import User
-from app.schemas.foods import FoodPatchRequest, FoodResponse, FoodStatisticResponse
-from app.schemas.scores import ScoreCreateRequest, ScoreResponse
+from app.schemas.foods import FoodPatchRequest, FoodResponse
 
 
 router = APIRouter(
@@ -43,51 +39,3 @@ async def update_food(
     """
     updated_food = foods.update_food(db, food_id, new_food)
     return updated_food
-
-
-@router.post("/score", response_model=List[ScoreResponse], status_code=status.HTTP_201_CREATED)
-async def score_food(
-    score_list: List[ScoreCreateRequest],
-    db: Session = Depends(get_db),
-    user_id: str = Depends(get_user_id)
-):
-    """
-    음식에 대한 점수를 등록하는 API.
-
-    사용자로부터 음식 ID와 점수 리스트를 받아 각 점수를 저장합니다.
-
-    Args:
-        score_list (List[ScoreCreateRequest]): 점수 생성 요청 리스트.
-        db (Session): SQLAlchemy 데이터베이스 세션.
-        user_id (str): 요청자의 사용자 ID (헤더에서 추출).
-
-    Returns:
-        List[ScoreResponse]: 생성된 점수 정보 리스트.
-
-    Raises:
-        HTTPException: 유효하지 않은 food_id 또는 DB 오류 발생 시 예외.
-    """
-    new_score = foods.score_food(db, user_id, score_list)
-    return new_score
-
-
-@router.get("/{food_id}/statistic", response_model=FoodStatisticResponse, status_code=status.HTTP_200_OK)
-async def get_food_statistics(
-    food_id: int,
-    db: Session = Depends(get_db)
-):
-    """
-    특정 음식의 점수 통계를 조회하는 API.
-
-    Args:
-        food_id (int): 조회할 음식의 ID.
-        db (Session): SQLAlchemy 데이터베이스 세션.
-
-    Returns:
-        FoodStatisticResponse: 평균, 중앙값, 분위수 등 점수 통계 정보.
-
-    Raises:
-        HTTPException: 음식이 존재하지 않거나 점수가 없을 경우.
-    """
-    statistics = foods.get_food_statistics(db, food_id)
-    return statistics

@@ -5,6 +5,8 @@ from app.cores.logger.config import logger
 def record_log(
     user_id: str, 
     request_api: str, 
+    request_header: Dict[str, Any], 
+    request_body: Dict[str, Any],
     status_code: int, 
     response: Dict[str, Any], 
     is_success: bool
@@ -18,6 +20,8 @@ def record_log(
     Args:
         user_id (str): 요청한 사용자 ID.
         request_api (str): 호출한 API 경로.
+        request_header (Dict[str, Any]): 호출한 API 헤더.
+        request_body (Dict[str, Any]): API 요청 데이터.
         status_code (int): HTTP 응답 상태 코드.
         response (Dict[str, Any]): API 응답 데이터.
         is_success (bool): 요청 성공 여부.
@@ -27,6 +31,8 @@ def record_log(
         extra={
             "user_id": user_id,
             "request_api": request_api,
+            "request_header": request_header,
+            "request_body": request_body,
             "status_code": status_code,
             "response": response,
             "is_success": is_success,

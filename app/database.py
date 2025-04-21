@@ -6,7 +6,7 @@ from app.config import get_settings
 
 settings = get_settings()
 
-engine = create_engine(settings.SQLITE_URL, echo=True)
+engine = create_engine(settings.MYSQL_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base: DeclarativeMeta = declarative_base()

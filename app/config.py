@@ -8,7 +8,12 @@ class Settings(BaseSettings):
 
     - 환경 변수 또는 `.env` 파일에서 값을 로드하여 설정을 관리합니다.
     """
-    SQLITE_URL: str
+    MYSQL_USERNAME: str
+    MYSQL_PASSWORD: str
+    MYSQL_HOSTNAME: str
+    MYSQL_PORT: int
+    MYSQL_SCHEMA: str
+    
     CORS_ORIGINS: str
     SECRET_KEY: str
     ALGORITHM: str
@@ -16,8 +21,13 @@ class Settings(BaseSettings):
     
     model_config = SettingsConfigDict(env_file=".env")
     
+    
     @property
-    def cors_origin_list(self):
+    def MYSQL_URL(self) -> str:
+        return f"mysql+pymysql://{self.MYSQL_USERNAME}:{self.MYSQL_PASSWORD}@{self.MYSQL_HOSTNAME}:{self.MYSQL_PORT}/{self.MYSQL_SCHEMA}"
+    
+    @property
+    def cors_origin_list(self) -> str:
         return self.CORS_ORIGINS.split(",")
 
 

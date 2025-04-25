@@ -1,22 +1,17 @@
 from datetime import date
 from typing import List, Optional
 
-from fastapi import HTTPException, status
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.menus import Menu
 from app.schemas.menus import (
     MenuResponse, 
-    MenuCreateRequest, 
-    MenuCounterResponse
+    MenuCreateRequest
 )
 from app.models.foods import Food
-from app.models.scores import Score
-from app.models.comments import Comment
 from app.models.food_menu import food_menu_table
 from app.schemas.foods import FoodResponse
-from app.schemas.menus import MenuCounterResponse
 
 
 def get_menu_by_id(db: Session, menu_id: int) -> Optional[MenuResponse]:
@@ -49,13 +44,13 @@ def get_menu_by_date(db: Session, date: date) -> List[MenuResponse]:
     Returns:
         List[MenuResponse]: 해당 날짜에 존재하는 모든 메뉴 리스트.
     """
-    menu_list = db.query(Menu).options(joinedload(Menu.foods)).filter(func.DATE(Menu.date) == date).all()
+    menu_list = db.query(Menu).options(joinedload(Menu.foods)).filter(func.DATE(Menu.created_at) == date).all()
 
     return [
         MenuResponse(
             id=menu.id,
             foods=[FoodResponse(id=food.id, name=food.name) for food in menu.foods],
-            date=menu.date
+            date=menu.created_at
         )
         for menu in menu_list
     ]
@@ -72,7 +67,7 @@ def create_menu(db: Session, menu: MenuCreateRequest) -> MenuResponse:
     Returns:
         MenuResponse: 생성된 메뉴와 음식 리스트 정보.
     """
-    new_menu = Menu(date=menu.date)
+    new_menu = Menu(created_at=menu.date)
     db.add(new_menu)
     db.flush()
     db.refresh(new_menu)
@@ -94,5 +89,5 @@ def create_menu(db: Session, menu: MenuCreateRequest) -> MenuResponse:
     return MenuResponse(
         id=new_menu.id,
         foods=created_foods,
-        date=new_menu.date
+        date=new_menu.created_at
     )

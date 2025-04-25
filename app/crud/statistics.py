@@ -123,7 +123,7 @@ def get_food_mean(db: Session, food_id: int, date: datetime=None) -> FoodMeanSta
     
     return FoodMeanStatisticResponse.model_validate({
         "food_id": food.id,
-        "mean": float(np.mean(arr)),
+        "mean": _safe_stat(float(np.mean(arr))),
     })
 
 
@@ -169,8 +169,8 @@ def get_food_statistics(db: Session, food_id: int, date: datetime=None) -> FoodS
         "statistics_including_duplicates": FoodStatisticsIncludingDuplicate.model_validate({
             "scores": scores_including_duplicates_dict,
             "total": len(arr_including_duplicates),
-            "mean": float(np.mean(arr_including_duplicates)),
-            "median": float(np.median(arr_including_duplicates)),
+            "mean": _safe_stat(np.mean(arr_including_duplicates)),
+            "median": _safe_stat(float(np.median(arr_including_duplicates))),
             "quantile_25": float(np.percentile(arr_including_duplicates, 25)),
             "quantile_75": float(np.percentile(arr_including_duplicates, 75)),
             "min": float(np.min(arr_including_duplicates)),
@@ -179,8 +179,8 @@ def get_food_statistics(db: Session, food_id: int, date: datetime=None) -> FoodS
         "statistics_without_duplicates": FoodStatisticsWithoutDuplicate.model_validate({
             "scores": scores_without_duplicates_dict,
             "total": len(arr_without_duplicates),
-            "mean": float(np.mean(arr_without_duplicates)),
-            "median": float(np.median(arr_without_duplicates)),
+            "mean": _safe_stat(np.mean(arr_without_duplicates)),
+            "median": _safe_stat(np.median(arr_without_duplicates)),
             "quantile_25": float(np.percentile(arr_without_duplicates, 25)),
             "quantile_75": float(np.percentile(arr_without_duplicates, 75)),
             "min": float(np.min(arr_without_duplicates)),
@@ -245,3 +245,10 @@ def _get_scores_without_duplicates(db: Session, food: Food, date: datetime=None)
             .group_by(Score.user_id)
             .all()
         )
+
+
+def _safe_stat(value: float) -> float:
+    """np.NaN, np.inf 방지 및 소숫점 5자리에서 반올림"""
+    if np.isnan(value) or np.isinf(value):
+        return 0.0
+    return round(value, 5)

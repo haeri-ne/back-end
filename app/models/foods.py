@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-
 from app.database import Base
 from app.models.food_menu import food_menu_table 
 
@@ -8,10 +7,11 @@ class Food(Base):
     """
     Food (음식) 테이블 모델.
 
-    - `id`: 음식 고유 ID (PK)
-    - `name`: 음식 이름
-    - `menus`: 다대다(M:N) 관계에서 메뉴(Menu)와 연결된 리스트
-    - `scores`: 음식 점수 (1:N 관계)
+    Attributes:
+        id (Integer): 음식 고유 ID (Primary Key)
+        name (String(100)): 음식 이름
+        menus (Menu): Menu(메뉴)와 연결된 리스트 (M:N 관계)
+        scores (Score): 음식 점수 (1:N 관계)
     """
     __tablename__ = "foods"
 

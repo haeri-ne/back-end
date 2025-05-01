@@ -1,16 +1,9 @@
-# 📌 FastAPI 기반 급식 평가 및 사용자 관리 시스템
-
-✅ **FastAPI, SQLAlchemy, Pydantic을 활용해 구축된 급식 평가 및 사용자 관리 API 백엔드**  
-✅ **음식, 메뉴, 댓글, 점수, 인증, 로그 기능을 포함한 통합형 RESTful API**  
-✅ **SQLite 로컬 개발 환경 및 `.env` 환경 변수 기반 설정 지원**  
-✅ **CRUD, 통계, 로그인, 요청/응답 로깅까지 포함한 완성형 백엔드 구조**  
-
----
+# 🥪 SSAFY 급식 평가 및 통계 시각화 서비스
 
 ## 📌 프로젝트 개요
 
-이 프로젝트는 **급식 메뉴에 대한 사용자 평가 및 의견 수집**을 목적으로 한 **FastAPI 기반 RESTful 백엔드 서비스**입니다.  
-음식/메뉴 관리부터 댓글, 점수 통계, 사용자 인증 및 프론트 로그 수집까지 **급식 서비스 운영에 필요한 모든 기능**을 제공합니다.
+이 프로젝트는 **SSAFY 급식 메뉴에 대한 사용자 평가 및 통계 출력**을 목적으로 한 **FastAPI 기반 RESTful 백엔드 서비스**입니다.  
+음식/메뉴 관리부터 댓글, 점수 통계, 사용자 인증 및 프론트 로그 수집까지 **급식 서비스 평가에 필요한 모든 기능**을 제공합니다.
 
 ### 🔧 주요 특징
 - **음식/메뉴 CRUD 및 통계 API 제공**
@@ -20,63 +13,74 @@
 - **JWT 기반 사용자 로그인 및 인증**
 - **요청/응답 자동 로깅 미들웨어 도입**
 - **프론트엔드 사용자 이벤트 로그 수신 기능**
-- **Swagger / ReDoc 문서 자동 생성**
 
----
+
 
 ## 📌 핵심 기능
 
-### ✅ 인증/회원 기능
-- 사용자 회원가입 (`POST /register`)
-- 사용자 로그인 및 액세스 토큰 발급 (`POST /token`)
-- 로그인된 사용자 정보 확인 (`GET /me`)
-
 ### ✅ 메뉴 기능
-- 메뉴 등록 (`POST /menus`)
-- 날짜별 메뉴 조회 (`GET /menus/{date}`)
-- 메뉴에 포함된 음식 통계 조회 (`GET /menus/{menu_id}/statistics`)
-- 메뉴별 총 점수/댓글 수 조회 (`GET /menus/{menu_id}/counters`)
+- 날짜를 기준으로 메뉴를 조회할 수 있습니다.
+- 메뉴에 포함된 음식들의 통계를 확인할 수 있습니다.
 
 ### ✅ 음식 기능
-- 음식 등록 (`POST /foods`)
-- 음식 이름 수정 (`PATCH /foods/{food_id}`)
-- 음식별 점수 통계 조회 (`GET /foods/{food_id}/statistic`)
+- 음식의 점수를 사용자들이 평가할 수 있습니다.
 
-### ✅ 점수 기능
-- 음식 점수 등록 (`POST /foods/score`)
-  - 여러 음식에 대한 점수를 한 번에 저장 가능
+- 평가된 점수를 기반으로 평균 점수와 통계를 조회할 수 있습니다.
+
+- 사용자별로 가장 최근에 남긴 음식 점수를 확인할 수 있습니다.
+
+### ✅ 메뉴 통계 기능
+- 메뉴에 포함된 모든 음식의 평균 점수를 집계합니다.
+
+- 음식별 상세 통계(평균, 중앙값, 분위수, 최소/최대)를 포함한 메뉴 통계를 제공합니다.
+
+### ✅ 투표 기능
+- 특정 메뉴에 대한 사용자 투표를 생성할 수 있습니다.
+
+- 이미 등록된 투표 내용을 수정할 수 있습니다.
+
+- 메뉴별로 받은 투표 수를 비교할 수 있습니다.
+
+- 사용자가 특정 메뉴에 남긴 투표를 조회할 수 있습니다.
 
 ### ✅ 댓글 기능
-- 메뉴에 댓글 등록 (`POST /menus/comments`)
+- 메뉴에 대해 사용자 댓글을 작성할 수 있습니다.
 
-### ✅ 프론트엔드 로그 수집
-- 사용자 이벤트 로그 수신 및 저장 (`POST /logs/front`)
+- 사용자가 남긴 가장 최근의 댓글을 조회할 수 있습니다.
 
----
+- 메뉴 간 댓글 수를 비교할 수 있습니다.
+
+
 
 ## 📌 프로젝트 구조
-```bash
+
+```
 📦 app/
-├── 📂 cores/               # 핵심 유틸, 인증 보안, 로거 등
-│   ├── logger/            # 요청/응답 로깅 관련
-│   │   └── logger.py
-│   └── security.py        # 비밀번호 해시, JWT 등 보안 기능
+├── 📂 cores/                  # 핵심 유틸리티, 보안, 로깅 등
+│   ├── logger/
+│   │   ├── config.py         # 로거 설정
+│   │   ├── handler.py        # 로깅 핸들러
+│   │   └── logger.py         # 로그 기록 함수
+│   └── security.py           # JWT, 비밀번호 해시 처리 등
 │
-├── 📂 crud/                # DB 조작 함수 (도메인별 CRUD)
+├── 📂 crud/                   # 도메인별 DB 조작 함수 (Create, Read, Update, Delete)
 │   ├── comments.py
 │   ├── foods.py
 │   ├── logs.py
 │   ├── menus.py
-│   └── users.py
+│   ├── scores.py
+│   ├── statistics.py
+│   ├── users.py
+│   └── votes.py
 │
-├── 📂 dependencies/        # FastAPI Depends 의존성 모듈
-│   ├── auth.py
-│   └── user.py
+├── 📂 dependencies/           # FastAPI Depends 의존성 주입 모듈
+│   ├── users.py              # 유저 관련 의존성
+│   └── auth.py               # 인증 관련 의존성
 │
-├── 📂 middlewares/        # 커스텀 미들웨어
-│   └── logging.py         # 요청/응답 로깅 미들웨어
+├── 📂 middlewares/           # 커스텀 미들웨어
+│   └── logging.py            # 요청/응답 로깅 미들웨어
 │
-├── 📂 models/              # SQLAlchemy ORM 모델 정의
+├── 📂 models/                # SQLAlchemy ORM 모델 정의
 │   ├── comments.py
 │   ├── food_menu.py
 │   ├── foods.py
@@ -84,131 +88,106 @@
 │   ├── menus.py
 │   ├── roles.py
 │   ├── scores.py
-│   └── users.py
+│   ├── users.py
+│   └── votes.py
 │
-├── 📂 routers/             # API 라우터 정의
+├── 📂 routers/               # API 라우터 정의 (FastAPI 엔드포인트)
 │   ├── auth.py
 │   ├── comments.py
 │   ├── foods.py
 │   ├── logs.py
 │   ├── menus.py
-│   └── users.py
+│   ├── scores.py
+│   ├── statistics.py
+│   ├── users.py
+│   └── votes.py
 │
-├── 📂 schemas/             # Pydantic 요청/응답 모델 정의
+├── 📂 schemas/               # Pydantic 모델 (요청/응답 검증용)
 │   ├── comments.py
 │   ├── foods.py
 │   ├── logs.py
 │   ├── menus.py
 │   ├── scores.py
+│   ├── statistics.py
 │   ├── tokens.py
-│   └── users.py
+│   ├── users.py
+│   └── votes.py
 │
-├── config.py               # 환경 설정
-├── database.py             # DB 연결 및 초기화
-├── main.py                 # FastAPI 앱 실행 진입점
-
-📄 .env                      # 환경 변수 설정 파일
-📄 .babp.db                  # SQLite 로컬 개발용 데이터베이스 파일
-📄 requirements.txt          # 프로젝트 의존성 목록
-📄 README.md                 # 프로젝트 설명 문서
-📄 .gitignore                # Git 추적 제외 설정
+├── config.py                 # 전역 설정 파일
+├── database.py               # DB 연결 및 초기화
+├── main.py                   # FastAPI 앱 실행 엔트리포인트
+│
+├──📄 .env                        # 환경 변수 정의
+├──📄 .gitignore                 # Git 추적 제외 설정
+├──📄 requirements.txt           # 프로젝트 의존성 목록
+├──📄 README.md                  # 프로젝트 설명서
 ```
 
----
 
-## 📌 설치 및 실행 방법
 
-### 🔹 1️⃣ 프로젝트 클론
-```bash
-git clone https://github.com/your-repo/fastapi-menus.git
-cd fastapi-menus
-```
+## 📌 API
 
-### 🔹 2️⃣ 가상 환경 설정 (선택)
-```bash
-python -m venv venv
-source venv/bin/activate  # macOS/Linux
-venv\Scripts\activate     # Windows
-```
-
-### 🔹 3️⃣ 패키지 설치
-```bash
-pip install -r requirements.txt
-```
-
-### 🔹 4️⃣ 환경 변수 설정 (.env)
-```ini
-SQLITE_URL=sqlite:///./database.db
-CORS_ORIGINS=*
-```
-
-### 🔹 5️⃣ DB 초기화
-```bash
-python -c "from app.database import init_db; init_db()"
-```
-
-### 🔹 6️⃣ 서버 실행
-```bash
-uvicorn app.main:app --reload
-```
+### ✅ 메뉴 기능
+| 기능 설명                             | 메서드 | 엔드포인트                     |
+|--------------------------------------|--------|--------------------------------|
+| 메뉴 등록                            | POST   | `/api/v1/menus/`              |
+| 특정 날짜의 메뉴 조회               | GET    | `/api/v1/menus/{date}`       |
 
 ---
 
-## 📌 API 문서 (자동 생성)
-
-| 문서 유형 | 주소 |
-|----------|----------------------------|
-| Swagger UI | `http://127.0.0.1:8000/docs` |
-| ReDoc      | `http://127.0.0.1:8000/redoc` |
+### ✅ 음식 기능
+| 기능 설명           | 메서드 | 엔드포인트                     |
+|--------------------|--------|--------------------------------|
+| 음식 정보 수정      | PATCH  | `/api/v1/foods/{food_id}`     |
 
 ---
 
-## 📌 주요 API 엔드포인트
-
-### 🗂 메뉴(Menu)
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| `POST` | `/api/v1/menus/` | 메뉴 생성 |
-| `GET`  | `/api/v1/menus/{date}` | 날짜별 메뉴 조회 |
-| `GET`  | `/api/v1/menus/{menu_id}/statistics` | 메뉴에 속한 음식 점수 통계 |
-| `GET`  | `/api/v1/menus/{menu_id}/counters` | 메뉴에 달린 댓글 수 및 점수 수 |
-| `POST` | `/api/v1/menus/comments` | 메뉴에 댓글 작성 |
+### ✅ 점수 기능
+| 기능 설명                                     | 메서드 | 엔드포인트                      |
+|----------------------------------------------|--------|---------------------------------|
+| 음식 점수 등록 (여러 개 가능)                 | POST   | `/api/v1/scores/`              |
+| 메뉴별 최근 음식 점수 목록 조회               | GET    | `/api/v1/scores/{menu_id}`     |
 
 ---
 
-### 🍱 음식(Food)
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| `POST` | `/api/v1/foods/` | 음식 등록 |
-| `PATCH`| `/api/v1/foods/{food_id}` | 음식 이름 수정 |
-| `GET`  | `/api/v1/foods/{food_id}/statistic` | 음식별 점수 통계 |
+### ✅ 댓글 기능
+| 기능 설명                    | 메서드 | 엔드포인트                         |
+|-----------------------------|--------|------------------------------------|
+| 댓글 등록                   | POST   | `/api/v1/comments/`               |
+| 특정 메뉴의 댓글 조회       | GET    | `/api/v1/comments/{menu_id}`     |
+| 전체 댓글 수 조회           | GET    | `/api/v1/comments/count`         |
 
 ---
 
-### ⭐ 점수(Score)
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| `POST` | `/api/v1/foods/score` | 점수 일괄 등록 (여러 음식 대상) |
+### ✅ 투표 기능
+| 기능 설명                       | 메서드 | 엔드포인트                      |
+|--------------------------------|--------|---------------------------------|
+| 투표 등록                      | POST   | `/api/v1/votes/`               |
+| 투표 수정                      | PATCH  | `/api/v1/votes/`               |
+| 전체 투표 수 조회              | GET    | `/api/v1/votes/count`          |
+| 특정 메뉴의 투표 결과 조회     | GET    | `/api/v1/votes/{menu_id}`      |
 
 ---
 
-### 💬 댓글(Comment)
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| `POST` | `/api/v1/menus/comments` | 메뉴에 댓글 작성 |
+### ✅ 통계 기능
+| 기능 설명                           | 메서드 | 엔드포인트                                       |
+|------------------------------------|--------|--------------------------------------------------|
+| 메뉴 통계 조회                      | GET    | `/api/v1/statistics/menus/{menu_id}`            |
+| 메뉴 평균 점수 조회                 | GET    | `/api/v1/statistics/mean/menus/{menu_id}`       |
+| 음식 통계 조회                      | GET    | `/api/v1/statistics/foods/{food_id}`            |
+| 음식 평균 점수 조회                 | GET    | `/api/v1/statistics/mean/foods/{food_id}`       |
 
 ---
 
-### 🔐 인증(Auth)
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| `POST` | `/api/v1/auth/register` | 사용자 회원가입 |
-| `POST` | `/api/v1/auth/token` | 사용자 로그인 (JWT 발급) |
-| `GET`  | `/api/v1/auth/me` | 로그인된 사용자 정보 조회 |
+### ✅ 프론트엔드 로그 수집
+| 기능 설명              | 메서드 | 엔드포인트            |
+|-----------------------|--------|------------------------|
+| 사용자 이벤트 로그 저장 | POST   | `/api/v1/logs/front`   |
 
 ---
 
-### 📦 프론트 로그(Front Logs)
-| 메서드 | 경로 | 설명 |
-|--------|------|------|
-| `POST` | `/api/v1/logs/front` | 프론트엔드 사용자 로그 수신 및 저장 |
+### ✅ 시스템 상태 확인
+| 기능 설명      | 메서드 | 엔드포인트        |
+|---------------|--------|-------------------|
+| 헬스 체크      | GET    | `/api/v1/health`  |
+

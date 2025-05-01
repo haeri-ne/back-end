@@ -9,20 +9,21 @@ class FrontLog(Base):
 
     사용자의 프론트엔드 상의 행동 이벤트를 기록합니다.
 
-    - `id`: 로그 고유 ID (PK)
-    - `user_id`: 사용자 ID
-    - `event_name`: 발생한 이벤트 이름 (예: click, scroll 등)
-    - `event_value`: 이벤트에 대한 상세 데이터 (JSON 형식)
-    - `page_name`: 이벤트가 발생한 페이지 이름
-    - `event_time`: 이벤트 발생 시간
+    Attributes:
+        id (Integer): 로그 고유 ID (Primary Key)
+        user_id (String(100)): 사용자 식별자 (UUID)
+        event_name (String(255)): 발생한 이벤트 이름
+        event_value (JSON): 이벤트에 대한 상세 데이터
+        page_name (String(50)): 이벤트가 발생한 페이지 이름
+        event_time (DateTime): 이벤트 발생 일자
     """
     __tablename__ = "front_logs"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(String, nullable=False)
-    event_name = Column(String, nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(100), nullable=False)
+    event_name = Column(String(255), nullable=False)
     event_value = Column(JSON, nullable=False)
-    page_name = Column(String, nullable=False)
+    page_name = Column(String(50), nullable=False)
     event_time = Column(DateTime, nullable=False)
 
     def __repr__(self):
@@ -36,19 +37,24 @@ class BackLog(Base):
 
     백엔드에서 발생한 API 요청 및 응답 정보를 기록합니다.
 
-    - `id`: 로그 고유 ID (PK)
-    - `user_id`: 요청한 사용자 ID
-    - `request_api`: 요청된 API 엔드포인트 경로
-    - `status_code`: HTTP 응답 상태 코드
-    - `response`: 응답 본문 (JSON 형식)
-    - `is_success`: 요청 성공 여부 (`True`/`False`)
-    - `time`: 로그 기록 시간
+    Attributes:
+        id (Integer): 로그 고유 ID (Primary Key)
+        user_id (String(100)): 사용자 식별자 (UUID)
+        request_api (String(100)): 요청된 API 엔드포인트 경로
+        request_header (JSON): 요청된 API 헤더
+        request_body (JSON): 요청된 API 바디
+        status_code (Integer): HTTP 응답 상태 코드
+        response (JSON): 응답 본문 (JSON 형식)
+        is_success (Boolean): 요청 성공 여부 (`True`/`False`)
+        time (DateTime): 로그 기록 시간
     """
     __tablename__ = "back_logs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(String, nullable=False)
-    request_api = Column(String, nullable=False)
+    user_id = Column(String(100), nullable=False)
+    request_api = Column(String(100), nullable=False)
+    request_header = Column(JSON, nullable=True)
+    request_body = Column(JSON, nullable=True)
     status_code = Column(Integer, nullable=False)
     response = Column(JSON, nullable=False)
     is_success = Column(Boolean, nullable=False)

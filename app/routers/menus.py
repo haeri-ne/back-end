@@ -9,12 +9,10 @@ from fastapi_pagination import add_pagination
 from app.database import get_db
 from app.dependencies.auth import get_current_admin
 from app.crud import menus
-from app.crud import comments
 from app.models.users import User
 from app.schemas.menus import (
     MenuResponse, 
-    MenuCreateRequest, 
-    MenuCounterResponse
+    MenuCreateRequest
 )
 
 

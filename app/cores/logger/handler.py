@@ -36,6 +36,8 @@ class CustomLoggingHandler(logging.Handler):
             new_log = BackLog(
                 user_id=record.user_id,
                 request_api=record.request_api,
+                request_header=record.request_header,
+                request_body=record.request_body,
                 response=record.response,
                 status_code=record.status_code,
                 is_success=record.is_success,

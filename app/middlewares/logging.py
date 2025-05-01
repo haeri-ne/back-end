@@ -11,40 +11,44 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     """
     HTTP 요청 및 응답을 로깅하는 미들웨어.
 
-    요청 시 user-id 헤더 값을 확인하고, API 경로 및 응답 상태 코드를 포함한 로그를 기록합니다.
-    응답 본문이 JSON일 경우 디코딩하여 응답 데이터까지 로그에 포함하며,
-    상태 코드가 400 이상인 경우 is_success 플래그를 False로 기록합니다.
+    요청 시 user-id 헤더 값을 추출하여 요청 상태에 저장하며,
+    API 경로, 요청 헤더, 요청 본문, 응답 상태 코드, 응답 본문 등을 로그에 기록합니다.
+
+    응답 본문이 JSON일 경우 디코딩하여 구조화된 응답으로 기록하고,
+    상태 코드가 400 이상이면 `is_success`를 False로 기록합니다.
 
     Attributes:
-        EXCLUDE_PATH (List[str]): 로깅에서 제외할 경로 목록 (헬스체크, 문서 등).
+        EXCLUDE_PATH (List[str]): 로깅 대상에서 제외할 경로 목록 (헬스체크, Swagger 등).
     """
     EXCLUDE_PATH = ["/health", "/openapi.json", "/api/v1/health", "/favicon.ico"]
 
     async def dispatch(self, request: Request, call_next):
         """
-        요청-응답을 가로채어 로그를 기록합니다.
+        HTTP 요청과 응답을 가로채어 로깅 처리합니다.
 
         Args:
-            request (Request): 클라이언트의 요청 객체.
-            call_next (Callable): 다음 미들웨어 혹은 라우터를 호출하는 함수.
+            request (Request): Starlette Request 객체.
+            call_next (Callable): 다음 처리 미들웨어 또는 라우터 함수.
 
         Returns:
-            Response: 가공되거나 원본 그대로인 응답 객체.
-
-        Raises:
-            Exception: 내부 처리 중 예외 발생 시 그대로 전달.
+            Response: 원본 혹은 가공된 Starlette Response 객체.
         """
         user_id = request.headers.get("user-id", "anonymous")
         request_api = f"{request.method} {request.url.path}"
         request.state.user_id = user_id
 
         try:
+            request_body = await request.body()
+            request_body_decoded = request_body.decode("utf-8") if request_body else None
+            
+            request._receive = lambda: {"type": "http.request", "body": request_body}
+
             response = await call_next(request)
 
             chunks = []
             async for chunk in response.body_iterator:
                 chunks.append(chunk)
-            response_body = b''.join(chunks)
+            response_body = b"".join(chunks)
 
             response = Response(
                 content=response_body,
@@ -56,12 +60,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             decoded_body = response_body.decode("utf-8")
             if decoded_body.strip() and request.url.path not in self.EXCLUDE_PATH:
                 try:
-                    response_data = json.loads(decoded_body)
                     record_log(
                         user_id=user_id,
                         request_api=request_api,
+                        request_header=json.loads(json.dumps(dict(request.headers))) if request.headers else None,
+                        request_body=json.loads(request_body_decoded) if request_body_decoded else None,
                         status_code=response.status_code,
-                        response=response_data,
+                        response=json.loads(decoded_body),
                         is_success=response.status_code < 400
                     )
                 except json.JSONDecodeError:
